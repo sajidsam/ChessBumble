@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'home_page.dart'; // Import to access MyHomePage
+import 'services/api_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -10,6 +11,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -46,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
                 // Main Brand Title
                 const Center(
                   child: Text(
-                    'MSICODE',
+                    'CHESSBUMBLE',
                     style: TextStyle(
                       color: Colors.white, // Inverted for red background
                       fontSize: 32,
@@ -73,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
 
                 // Username Field
                 _buildProfessionalTextField(
-                  hintText: 'type your msic',
+                  hintText: 'type your ChessBumble code',
                   icon: Icons.person_outline,
                   controller: _usernameController,
                   readOnly: true,
@@ -84,13 +86,12 @@ class _LoginPageState extends State<LoginPage> {
                 _buildCustomKeyboard(redColor, screenWidth),
                 const SizedBox(height: 48),
 
-                // Login Button
                 ElevatedButton(
                   onPressed: () {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const MyHomePage(title: 'MSIc App'),
+                        builder: (context) => const MyHomePage(title: 'ChessBumble'),
                       ),
                     );
                   },

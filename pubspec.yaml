@@ -11,7 +11,9 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-
+  http: ^1.6.0
+  chess: ^0.8.1
+  encrypt: ^5.0.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -22,9 +24,16 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/chess/
 
   fonts:
     - family: Doto
       fonts:
         - asset: assets/fonts/Doto-Bold.ttf
+          weight: 700
+    - family: RobotoSlab
+      fonts:
+        - asset: assets/fonts/RobotoSlab-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/RobotoSlab-Bold.ttf
           weight: 700

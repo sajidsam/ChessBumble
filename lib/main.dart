@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'MSIc',
+      title: 'ChessBumble',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // Custom red and white theme
