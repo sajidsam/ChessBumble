@@ -19,7 +19,6 @@ class MyApp extends StatelessWidget {
         // Custom red and white theme
         primaryColor: appRed,
         scaffoldBackgroundColor: appRed,
-        fontFamily: 'Doto', // Use local Doto font
         colorScheme: const ColorScheme.light(
           primary: appRed,
           secondary: appRed,
@@ -28,7 +27,6 @@ class MyApp extends StatelessWidget {
         textTheme: Theme.of(context).textTheme.apply(
           bodyColor: appRed,
           displayColor: appRed,
-          fontFamily: 'Doto',
         ).copyWith(
           bodyMedium: const TextStyle(fontWeight: FontWeight.bold, color: appRed),
           bodyLarge: const TextStyle(fontWeight: FontWeight.bold, color: appRed),

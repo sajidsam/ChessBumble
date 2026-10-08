@@ -50,6 +50,7 @@ class _LoginPageState extends State<LoginPage> {
                     style: TextStyle(
                       color: Colors.white, // Inverted for red background
                       fontSize: 32,
+                      fontFamily: 'Doto', // Distinctive dot brand title
                       fontWeight: FontWeight.bold,
                       letterSpacing: 2,
                     ),
@@ -64,7 +65,6 @@ class _LoginPageState extends State<LoginPage> {
                     style: TextStyle(
                       color: Colors.white70, // Inverted for red background
                       fontSize: 14,
-                      fontFamily: 'Roboto', 
                       fontWeight: FontWeight.normal,
                     ),
                   ),
@@ -94,18 +94,20 @@ class _LoginPageState extends State<LoginPage> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white, // Inverted for red background
-                    foregroundColor: redColor,     // Inverted for red background
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Colors.white, // White background
+                    foregroundColor: Colors.black, // Dark ripple
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12), // Matching the text field
+                      side: BorderSide(color: Colors.grey.shade300, width: 1),
                     ),
                     elevation: 2,
                   ),
                   child: const Text(
-                    'LOGIN',
+                    'LOGIN / REGISTER',
                     style: TextStyle(
-                      fontSize: 18,
+                      color: Colors.black87, // Black text
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.2,
                     ),
@@ -137,11 +139,9 @@ class _LoginPageState extends State<LoginPage> {
       child: TextField(
         controller: controller,
         readOnly: readOnly,
-        // Override Doto font for inputs to make them highly readable
         style: const TextStyle(
           color: Colors.black87,
           fontSize: 16,
-          fontFamily: 'Roboto', 
           fontWeight: FontWeight.normal,
         ),
         decoration: InputDecoration(
@@ -149,7 +149,6 @@ class _LoginPageState extends State<LoginPage> {
           hintStyle: TextStyle(
             color: Colors.grey.shade500,
             fontSize: 16,
-            fontFamily: 'Roboto',
           ),
           prefixIcon: Icon(icon, color: Colors.grey.shade600, size: 22),
           border: InputBorder.none,

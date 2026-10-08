@@ -51,7 +51,7 @@ class _ProfilePageState extends State<ProfilePage> {
             SizedBox(width: 8),
             Text(
               'Edit Profile',
-              style: TextStyle(color: textWhite, fontFamily: 'Roboto', fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(color: textWhite, fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -60,7 +60,7 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             TextField(
               controller: nameController,
-              style: const TextStyle(color: textWhite, fontFamily: 'Roboto'),
+              style: const TextStyle(color: textWhite),
               decoration: InputDecoration(
                 labelText: 'Username',
                 labelStyle: const TextStyle(color: textMuted),
@@ -74,7 +74,7 @@ class _ProfilePageState extends State<ProfilePage> {
             TextField(
               controller: ratingController,
               keyboardType: TextInputType.number,
-              style: const TextStyle(color: textWhite, fontFamily: 'Roboto'),
+              style: const TextStyle(color: textWhite),
               decoration: InputDecoration(
                 labelText: 'Rating (ELO)',
                 labelStyle: const TextStyle(color: textMuted),
@@ -89,7 +89,7 @@ class _ProfilePageState extends State<ProfilePage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: textMuted, fontFamily: 'Roboto')),
+            child: const Text('Cancel', style: TextStyle(color: textMuted)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -115,7 +115,7 @@ class _ProfilePageState extends State<ProfilePage> {
               foregroundColor: Colors.black,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Save', style: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.bold)),
+            child: const Text('Save', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -138,7 +138,6 @@ class _ProfilePageState extends State<ProfilePage> {
           'Profile',
           style: TextStyle(
             color: Colors.white,
-            fontFamily: 'Roboto',
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -205,7 +204,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     username,
                     style: const TextStyle(
                       color: textWhite,
-                      fontFamily: 'Roboto',
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
                     ),
@@ -227,7 +225,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           'MEMBER',
                           style: TextStyle(
                             color: Colors.white70,
-                            fontFamily: 'Roboto',
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.8,
@@ -239,7 +236,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         '$rating ELO',
                         style: const TextStyle(
                           color: Colors.white,
-                          fontFamily: 'Roboto',
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -252,7 +248,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   OutlinedButton.icon(
                     onPressed: _showEditProfileDialog,
                     icon: const Icon(Icons.edit, size: 16, color: Colors.white),
-                    label: const Text('Edit Details', style: TextStyle(color: Colors.white, fontFamily: 'Roboto')),
+                    label: const Text('Edit Details', style: TextStyle(color: Colors.white)),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Colors.white24),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -272,7 +268,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 'Performance Overview',
                 style: TextStyle(
                   color: Colors.white70,
-                  fontFamily: 'Roboto',
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
@@ -309,7 +304,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 'Recent Matches',
                 style: TextStyle(
                   color: Colors.white70,
-                  fontFamily: 'Roboto',
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
@@ -345,7 +339,6 @@ class _ProfilePageState extends State<ProfilePage> {
             value,
             style: const TextStyle(
               color: Colors.white,
-              fontFamily: 'Roboto',
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
@@ -355,7 +348,6 @@ class _ProfilePageState extends State<ProfilePage> {
             label,
             style: const TextStyle(
               color: textMuted,
-              fontFamily: 'Roboto',
               fontSize: 11,
             ),
           ),
@@ -394,7 +386,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   opponent,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontFamily: 'Roboto',
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
                   ),
@@ -403,7 +394,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   detail,
                   style: const TextStyle(
                     color: textMuted,
-                    fontFamily: 'Roboto',
                     fontSize: 11,
                   ),
                 ),
@@ -421,7 +411,6 @@ class _ProfilePageState extends State<ProfilePage> {
               result,
               style: const TextStyle(
                 color: Colors.white,
-                fontFamily: 'Roboto',
                 fontWeight: FontWeight.bold,
                 fontSize: 11,
               ),

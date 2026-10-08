@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:chess/chess.dart' as ch;
 import 'info_feed_page.dart';
 import 'services/chess_ai.dart';
-import 'services/api_service.dart';
 import 'profile_page.dart';
 
 // Brand & Dark Theme Colors
@@ -311,7 +311,7 @@ class _MyHomePageState extends State<MyHomePage> {
           title: const Text(
             'Promote Pawn',
             textAlign: TextAlign.center,
-            style: TextStyle(color: textWhite, fontFamily: 'Roboto', fontWeight: FontWeight.bold),
+            style: TextStyle(color: textWhite, fontWeight: FontWeight.bold),
           ),
           content: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -407,9 +407,13 @@ class _MyHomePageState extends State<MyHomePage> {
       isComputerThinking = true;
     });
 
-    int thinkDelay = botDifficulty == BotDifficulty.easy
-        ? 450
-        : (botDifficulty == BotDifficulty.medium ? 700 : 950);
+    // Human-like thinking delay with natural variation (1.2s - 3.2s)
+    final random = Random();
+    final int thinkDelay = switch (botDifficulty) {
+      BotDifficulty.easy => 1200 + random.nextInt(600),   // 1.2s - 1.8s
+      BotDifficulty.medium => 1600 + random.nextInt(800), // 1.6s - 2.4s
+      BotDifficulty.hard => 2200 + random.nextInt(1000),  // 2.2s - 3.2s
+    };
 
     Future.delayed(Duration(milliseconds: thinkDelay), () {
       if (!mounted || !isVsComputer || chess.game_over) {
@@ -454,7 +458,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Expanded(
                 child: Text(
                   'Hint: Move $movingPiece from ${hintFrom!.toUpperCase()} to ${hintTo!.toUpperCase()} (${bestMove['san']})',
-                  style: const TextStyle(color: textWhite, fontFamily: 'Roboto', fontWeight: FontWeight.bold),
+                  style: const TextStyle(color: textWhite, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -526,16 +530,16 @@ class _MyHomePageState extends State<MyHomePage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
           'Game Over',
-          style: TextStyle(color: textWhite, fontFamily: 'Roboto', fontWeight: FontWeight.bold),
+          style: TextStyle(color: textWhite, fontWeight: FontWeight.bold),
         ),
         content: Text(
           message,
-          style: const TextStyle(color: textWhite, fontFamily: 'Roboto', fontSize: 16),
+          style: const TextStyle(color: textWhite, fontSize: 16),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Review Board', style: TextStyle(color: textMuted, fontFamily: 'Roboto')),
+            child: const Text('Review Board', style: TextStyle(color: textMuted)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -547,7 +551,7 @@ class _MyHomePageState extends State<MyHomePage> {
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('New Game', style: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.bold)),
+            child: const Text('New Game', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -631,98 +635,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return null;
   }
 
-  // --- Registration Dialog ---
-  void _showRegistrationDialog() {
-    final nameController = TextEditingController(text: currentUserName == 'You' ? '' : currentUserName);
-    final ratingController = TextEditingController(text: currentUserRating);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: cardDark,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: const [
-            Icon(Icons.person_add_alt_1, color: brandRed),
-            SizedBox(width: 8),
-            Text(
-              'Register Player Profile',
-              style: TextStyle(color: textWhite, fontFamily: 'Roboto', fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              style: const TextStyle(color: textWhite, fontFamily: 'Roboto'),
-              decoration: InputDecoration(
-                labelText: 'Player Username / MSI Code',
-                labelStyle: const TextStyle(color: textMuted),
-                hintText: 'e.g. GrandmasterSam',
-                hintStyle: TextStyle(color: Colors.white24),
-                filled: true,
-                fillColor: cardSurface,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-            ),
-            const SizedBox(height: 14),
-            TextField(
-              controller: ratingController,
-              keyboardType: TextInputType.number,
-              style: const TextStyle(color: textWhite, fontFamily: 'Roboto'),
-              decoration: InputDecoration(
-                labelText: 'Player Rating (ELO)',
-                labelStyle: const TextStyle(color: textMuted),
-                hintText: 'e.g. 1650',
-                filled: true,
-                fillColor: cardSurface,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: textMuted, fontFamily: 'Roboto')),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              String name = nameController.text.trim();
-              String rating = ratingController.text.trim();
-              if (name.isNotEmpty) {
-                setState(() {
-                  currentUserName = name;
-                  if (rating.isNotEmpty) currentUserRating = rating;
-                });
-                final messenger = ScaffoldMessenger.of(context);
-                Navigator.pop(context);
-
-                // Optional background sync with backend
-                try {
-                  await ApiService.login(name);
-                } catch (_) {}
-
-                messenger.showSnackBar(
-                  SnackBar(
-                    backgroundColor: Colors.green.shade800,
-                    content: Text('Profile registered: $name ($currentUserRating ELO)'),
-                  ),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: brandRed,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Register', style: TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
-    );
-  }
 
   // --- Find Players Dialog ---
   void _showFindPlayersDialog() {
@@ -773,14 +685,14 @@ class _MyHomePageState extends State<MyHomePage> {
                       SizedBox(width: 8),
                       Text(
                         'Find Players (Matchmaking)',
-                        style: TextStyle(color: textWhite, fontFamily: 'Roboto', fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: textWhite, fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
                   const SizedBox(height: 14),
                   TextField(
                     controller: searchController,
-                    style: const TextStyle(color: textWhite, fontFamily: 'Roboto'),
+                    style: const TextStyle(color: textWhite),
                     onChanged: (val) {
                       setModalState(() {
                         filteredPlayers = allPlayers
@@ -799,7 +711,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text('Active Online Players', style: TextStyle(color: textMuted, fontSize: 13, fontFamily: 'Roboto')),
+                  const Text('Active Online Players', style: TextStyle(color: textMuted, fontSize: 13)),
                   const SizedBox(height: 8),
                   SizedBox(
                     height: 220,
@@ -825,14 +737,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                   children: [
                                     Text(
                                       p['name']!,
-                                      style: const TextStyle(color: textWhite, fontWeight: FontWeight.bold, fontFamily: 'Roboto'),
+                                      style: const TextStyle(color: textWhite, fontWeight: FontWeight.bold),
                                     ),
                                     Text(
                                       '${p['rating']} ELO • ${p['status']}',
                                       style: TextStyle(
                                         color: isAvailable ? Colors.greenAccent : textMuted,
                                         fontSize: 12,
-                                        fontFamily: 'Roboto',
                                       ),
                                     ),
                                   ],
@@ -860,7 +771,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                 ),
-                                child: const Text('Challenge', style: TextStyle(fontFamily: 'Roboto', fontSize: 12)),
+                                child: const Text('Challenge', style: TextStyle(fontSize: 12)),
                               ),
                             ],
                           ),
@@ -890,7 +801,7 @@ class _MyHomePageState extends State<MyHomePage> {
             SizedBox(width: 8),
             Text(
               'Game Mode & Level',
-              style: TextStyle(color: textWhite, fontFamily: 'Roboto', fontWeight: FontWeight.bold),
+              style: TextStyle(color: textWhite, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -898,10 +809,10 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             SwitchListTile(
-              title: const Text('Play vs Computer', style: TextStyle(color: textWhite, fontFamily: 'Roboto')),
+              title: const Text('Play vs Computer', style: TextStyle(color: textWhite)),
               subtitle: Text(
                 isVsComputer ? 'AI opponent enabled' : 'Pass & Play (2 Players)',
-                style: const TextStyle(color: textMuted, fontSize: 12, fontFamily: 'Roboto'),
+                style: const TextStyle(color: textMuted, fontSize: 12),
               ),
               value: isVsComputer,
               activeThumbColor: brandRed,
@@ -921,7 +832,7 @@ class _MyHomePageState extends State<MyHomePage> {
             const Divider(color: Colors.white24),
             const Align(
               alignment: Alignment.centerLeft,
-              child: Text('Computer Difficulty:', style: TextStyle(color: textMuted, fontFamily: 'Roboto', fontSize: 13)),
+              child: Text('Computer Difficulty:', style: TextStyle(color: textMuted, fontSize: 13)),
             ),
             const SizedBox(height: 8),
             _buildDifficultyOption(
@@ -948,7 +859,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
             style: ElevatedButton.styleFrom(backgroundColor: brandRed, foregroundColor: Colors.white),
-            child: const Text('Done', style: TextStyle(fontFamily: 'Roboto')),
+            child: const Text('Done'),
           ),
         ],
       ),
@@ -983,8 +894,8 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(color: textWhite, fontWeight: FontWeight.bold, fontFamily: 'Roboto', fontSize: 13)),
-                  Text(subtitle, style: const TextStyle(color: textMuted, fontSize: 11, fontFamily: 'Roboto')),
+                  Text(title, style: const TextStyle(color: textWhite, fontWeight: FontWeight.bold, fontSize: 13)),
+                  Text(subtitle, style: const TextStyle(color: textMuted, fontSize: 11)),
                 ],
               ),
             ),
@@ -1050,7 +961,6 @@ class _MyHomePageState extends State<MyHomePage> {
       data: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: bgDark,
         primaryColor: brandRed,
-        textTheme: ThemeData.dark().textTheme.apply(fontFamily: 'Roboto'),
       ),
       child: Scaffold(
         backgroundColor: bgDark,
@@ -1094,7 +1004,6 @@ class _MyHomePageState extends State<MyHomePage> {
                             color: Colors.white, // Pure B&W
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'Roboto',
                           ),
                         ),
                       ),
@@ -1137,7 +1046,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       SizedBox(width: 10),
                       Text(
                         'Profile',
-                        style: TextStyle(color: Colors.white, fontFamily: 'Roboto', fontSize: 13, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -1155,7 +1064,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       const SizedBox(width: 10),
                       Text(
                         isVsComputer ? 'Mode: Bot (${botDifficulty.name.toUpperCase()})' : 'Mode: Pass & Play',
-                        style: const TextStyle(color: Colors.white, fontFamily: 'Roboto', fontSize: 13),
+                        style: const TextStyle(color: Colors.white, fontSize: 13),
                       ),
                     ],
                   ),
@@ -1169,7 +1078,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       SizedBox(width: 10),
                       Text(
                         'Find Players',
-                        style: TextStyle(color: Colors.white, fontFamily: 'Roboto', fontSize: 13),
+                        style: TextStyle(color: Colors.white, fontSize: 13),
                       ),
                     ],
                   ),
@@ -1183,7 +1092,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       SizedBox(width: 10),
                       Text(
                         'Board Theme',
-                        style: TextStyle(color: Colors.white, fontFamily: 'Roboto', fontSize: 13),
+                        style: TextStyle(color: Colors.white, fontSize: 13),
                       ),
                     ],
                   ),
@@ -1198,7 +1107,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       SizedBox(width: 10),
                       Text(
                         'New Game',
-                        style: TextStyle(color: Colors.white, fontFamily: 'Roboto', fontSize: 13),
+                        style: TextStyle(color: Colors.white, fontSize: 13),
                       ),
                     ],
                   ),
@@ -1213,7 +1122,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(height: 6),
+                const SizedBox(height: 24), // Lowered down so board sits in the center
 
                 // Top Section: Opponent Card
                 Padding(
@@ -1236,7 +1145,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 16),
 
                 // Center Section: Chess Board with embedded coordinates
                 Center(
@@ -1378,7 +1287,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                         color: coordColor,
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold,
-                                        fontFamily: 'Roboto',
                                       ),
                                     ),
                                   ),
@@ -1394,7 +1302,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                         color: coordColor,
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold,
-                                        fontFamily: 'Roboto',
                                       ),
                                     ),
                                   ),
@@ -1444,7 +1351,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 16),
 
                 // Player Card (Bottom - User)
                 Padding(
@@ -1467,7 +1374,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
 
                 // Live Move Notation Bar (PGN Ticker)
                 Container(
@@ -1483,7 +1390,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ? const Center(
                           child: Text(
                             'Game started. Make your move.',
-                            style: TextStyle(color: textMuted, fontSize: 13, fontFamily: 'Roboto'),
+                            style: TextStyle(color: textMuted, fontSize: 13),
                           ),
                         )
                       : ListView.builder(
@@ -1506,7 +1413,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                       color: textMuted,
                                       fontSize: 13,
                                       fontWeight: FontWeight.bold,
-                                      fontFamily: 'Roboto',
                                     ),
                                   ),
                                   Container(
@@ -1523,7 +1429,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                         color: textWhite,
                                         fontSize: 13,
                                         fontWeight: FontWeight.bold,
-                                        fontFamily: 'Roboto',
                                       ),
                                     ),
                                   ),
@@ -1543,7 +1448,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                           color: textWhite,
                                           fontSize: 13,
                                           fontWeight: FontWeight.bold,
-                                          fontFamily: 'Roboto',
                                         ),
                                       ),
                                     ),
@@ -1555,7 +1459,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
 
                 // Bottom Action Toolbar (Professional Controls + Hint button)
                 Container(
@@ -1608,7 +1512,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
               ],
             ),
           ),
@@ -1628,21 +1532,19 @@ class _MyHomePageState extends State<MyHomePage> {
     bool isThinking = false,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      // Increased vertical padding to make cards taller and spacious
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       decoration: BoxDecoration(
         color: cardDark,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: isActive ? Colors.greenAccent.withValues(alpha: 0.4) : Colors.transparent,
-          width: 1.5,
-        ),
+        borderRadius: BorderRadius.circular(12),
+        // Outer active border completely removed as requested
       ),
       child: Row(
         children: [
-          // Player Avatar Circle
+          // Player Avatar Circle (Enlarged for taller card)
           Container(
-            width: 36,
-            height: 36,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: isWhitePlayer ? Colors.white : const Color(0xFF2E2C29),
@@ -1651,18 +1553,18 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Center(
               child: isThinking
                   ? const SizedBox(
-                      width: 18,
-                      height: 18,
+                      width: 20,
+                      height: 20,
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.greenAccent),
                     )
                   : Image.asset(
                       isWhitePlayer ? 'assets/images/chess/wp.png' : 'assets/images/chess/bp.png',
-                      width: 22,
-                      height: 22,
+                      width: 26,
+                      height: 26,
                     ),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
 
           // Player Name & Captured Pieces Tray
           Expanded(
@@ -1679,8 +1581,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         style: TextStyle(
                           color: isThinking ? Colors.amberAccent : textWhite,
                           fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          fontFamily: 'Roboto',
+                          fontSize: 14,
                         ),
                       ),
                     ),
@@ -1689,13 +1590,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       '($rating)',
                       style: const TextStyle(
                         color: textMuted,
-                        fontSize: 11,
-                        fontFamily: 'Roboto',
+                        fontSize: 12,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 3),
 
                 // Captured pieces list & Advantage pill
                 Row(
@@ -1703,7 +1603,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     if (capturedAssets.isNotEmpty)
                       Expanded(
                         child: SizedBox(
-                          height: 16,
+                          height: 18,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: capturedAssets.length,
@@ -1712,8 +1612,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                 padding: const EdgeInsets.only(right: 2.0),
                                 child: Image.asset(
                                   capturedAssets[idx],
-                                  width: 14,
-                                  height: 14,
+                                  width: 15,
+                                  height: 15,
                                   fit: BoxFit.contain,
                                 ),
                               );
@@ -1733,9 +1633,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           '+$advantage',
                           style: const TextStyle(
                             color: Colors.white70,
-                            fontSize: 10,
+                            fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'Roboto',
                           ),
                         ),
                       ),
@@ -1745,38 +1644,33 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
 
-          // Digital Clock Display
+          // Digital Clock Display (Taller & cleaner)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: isActive ? const Color(0xFF2A3D2A) : cardSurface,
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(
-                color: isActive ? Colors.greenAccent : Colors.white12,
-                width: 1,
-              ),
+              color: isActive ? const Color(0xFFFF0000) : cardSurface,
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (isActive) ...[
                   Container(
-                    width: 6,
-                    height: 6,
+                    width: 7,
+                    height: 7,
                     margin: const EdgeInsets.only(right: 6),
                     decoration: const BoxDecoration(
-                      color: Colors.greenAccent,
+                      color: Colors.white,
                       shape: BoxShape.circle,
                     ),
                   ),
                 ],
                 Text(
                   timeString,
-                  style: TextStyle(
-                    color: isActive ? Colors.greenAccent : textWhite,
+                  style: const TextStyle(
+                    color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    fontFamily: 'Roboto',
+                    fontSize: 16,
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -1812,7 +1706,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: TextStyle(
                   color: color ?? Colors.white70,
                   fontSize: 11,
-                  fontFamily: 'Roboto',
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -1839,15 +1732,15 @@ class _MyHomePageState extends State<MyHomePage> {
       builder: (context) => AlertDialog(
         backgroundColor: cardDark,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: const Text('New Game?', style: TextStyle(color: textWhite, fontFamily: 'Roboto')),
+        title: const Text('New Game?', style: TextStyle(color: textWhite)),
         content: const Text(
           'Are you sure you want to restart this game?',
-          style: TextStyle(color: textMuted, fontFamily: 'Roboto'),
+          style: TextStyle(color: textMuted),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: textMuted, fontFamily: 'Roboto')),
+            child: const Text('Cancel', style: TextStyle(color: textMuted)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -1858,7 +1751,7 @@ class _MyHomePageState extends State<MyHomePage> {
               backgroundColor: brandRed,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Restart', style: TextStyle(fontFamily: 'Roboto')),
+            child: const Text('Restart'),
           ),
         ],
       ),
@@ -1871,15 +1764,15 @@ class _MyHomePageState extends State<MyHomePage> {
       builder: (context) => AlertDialog(
         backgroundColor: cardDark,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: const Text('Resign Game?', style: TextStyle(color: textWhite, fontFamily: 'Roboto')),
+        title: const Text('Resign Game?', style: TextStyle(color: textWhite)),
         content: const Text(
           'Do you want to forfeit this game?',
-          style: TextStyle(color: textMuted, fontFamily: 'Roboto'),
+          style: TextStyle(color: textMuted),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: textMuted, fontFamily: 'Roboto')),
+            child: const Text('Cancel', style: TextStyle(color: textMuted)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -1892,7 +1785,7 @@ class _MyHomePageState extends State<MyHomePage> {
               backgroundColor: Colors.redAccent,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Resign', style: TextStyle(fontFamily: 'Roboto')),
+            child: const Text('Resign'),
           ),
         ],
       ),
